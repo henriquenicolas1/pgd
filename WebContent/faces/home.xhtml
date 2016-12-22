@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<h:head>
+	<h:outputStylesheet library="css" name="cristals.css" />
+	<h:outputScript library="js" name="cristals.js" />
+	<title>Cristals</title>
+</h:head>
+<h:body style="overflow:hidden">
+	<pe:layout fullPage="true">
+		<pe:layoutPane id="headerLayoutPane" position="north" closable="false"
+			resizable="false">
+			
+		</pe:layoutPane>
+		<pe:layoutPane id="leftLayoutPane" position="west" closable="false"
+			resizable="false">
+			<p:commandButton value="Simular" actionListener="#{cristalsBean.simular}"/>
+		</pe:layoutPane>
+		<pe:layoutPane position="center" id="layoutCenter">
+			<div id="cristals">
+				<h:form>
+					<p:contextMenu>
+						<p:menuitem value="Make air" onclick="makeAir()"/>
+						<p:menuitem value="Make tube" onclick="makeTube()"/>
+					</p:contextMenu>
+				</h:form>
+				<ui:repeat var="spots" value="#{cristalsBean.spots}" varStatus="j">
+					<div class="line">
+						<ui:repeat var="spot" value="#{spots}" varStatus="i">
+							<div class="#{spot.type}" x="#{i.index}" y="#{j.index}"/>
+						</ui:repeat>
+					</div>
+				</ui:repeat>
+			</div>
+		</pe:layoutPane>
+		<pe:layoutPane id="rightLayoutPane" position="east" closable="false"
+			resizable="false">
+			
+		</pe:layoutPane>
+		<pe:layoutPane id="footerLayoutPane" position="south" closable="false"
+			resizable="false">
+
+		</pe:layoutPane>
+	</pe:layout>
+</h:body>
+</html>

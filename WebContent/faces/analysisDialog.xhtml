@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<ui:composition>
+	<p:dialog widgetVar="analysisDialog" header="Robustness Analysis" modal="true" appendTo="@(body) ">
+		<h:outputScript library="js" name="analysisDialog.js"/>
+		<h:form>
+		<h:panelGrid columns="2" cellpadding="2">
+		
+		<p:outputLabel for="weight" value="Weight of cylinders"/>
+		<p:inputText id="weight" widgetVar="w" value="10"/>
+		
+		<p:outputLabel for="times" value="Number of executions by region"/>
+		<p:inputText id="times" widgetVar="t" value="1"/>
+		
+		<p:outputLabel for="tolup" value="Tolerance percentage up"/> 
+		<p:inputText id="tolup" widgetVar="u" value="10"/>
+		
+		<p:outputLabel for="toldown" value="Tolerance percentage down"/> 
+		<p:inputText id="toldown" widgetVar="d" value="10"/>
+		
+		<p:outputLabel for="num" value="Number of regions"/> 
+		<p:inputText id="num" widgetVar="n" value="2"/>
+		
+		<p:outputLabel for="sigma" value="Sigma"/> 
+		<p:inputText id="sigma" widgetVar="s" value="20"/>		
+		
+		</h:panelGrid>
+		</h:form>
+		
+		<h:form>
+    		<p:growl id="growl" life="2000" />
+     
+    		<!--  <p:commandButton value="Cancel" id="cancel" oncomplete="dlg.hide();" /> -->
+    		
+    		<p:commandButton type="button" value="OK" id="ok" styleClass="ui-priority-primary" icon="fa fa-check" onclick="return startAnalysis();"/>
+    		
+    		
+		</h:form>
+	</p:dialog>
+	
+</ui:composition>
+</html>

@@ -1,0 +1,36 @@
+.without-border tr, .without-border td {
+	border: 0;
+	border-style: none !important; 
+	margin: 0;
+	padding: 0;
+}
+
+.without-border > tr, .without-border > td {
+	border: 0;
+    border-style: none !important; 
+    margin: 0;
+    padding: 0;
+}
+
+body {
+	border: 1px solid #bce8f1;
+    background: #d9edf7;
+    color: #31708f;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#headerLayoutPane {
+	background-color:#31708f;
+	color: #d9edf7;
+}
+
+#footerLayoutPane {
+	background-color:#31708f;
+	color: #d9edf7;
+}
+
+.ui-widget-header.ui-corner-top.pe-layout-pane-header {
+	border: 1px solid white;
+	background-color:#31708f;
+	color: #d9edf7;
+}

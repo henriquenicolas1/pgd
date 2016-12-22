@@ -1,0 +1,54 @@
+.lattice {
+	font-size: 0;
+}
+
+.list {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: inherit;
+	height: inherit;
+}
+
+.geometric-object {
+	position: absolute;
+	display: block;
+}
+
+.block {
+	background-color: rgba(0, 0, 0, 0.04);
+	z-index: 1;
+}
+
+.cylinder {
+	z-index: 3;
+	border-color: black;
+	border-style: solid;
+	border-radius: 50%;
+	border-width: 2px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.cylinder.selected {
+	border-color: #f69c55;
+}
+
+.source {
+	z-index: 2;
+	position: absolute;
+	display: block;
+	border-radius: 50%;
+	background: radial-gradient(circle at 50px 50px, blue, #fff);
+}
+
+.flux-region {
+	z-index: 2;
+	position: absolute;
+	border-style: dotted;
+	border-width: 2px;
+	border-color: red;
+	background-color: pink;
+}

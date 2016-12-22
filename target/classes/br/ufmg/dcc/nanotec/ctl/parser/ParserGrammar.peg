@@ -1,0 +1,121 @@
+Expression
+	= exprs:(_ "(" _ Expression _ ")")+ _ {
+    	if(exprs.length==1) return exprs[0][3];
+    	else return parserContext.simulation;
+    }
+    / ResetExpr
+    / SetExpr
+    / DefineExpr
+    / ClassExpr
+    / ListExpr
+    / AddFluxExpr
+    / RunUntil
+    / DisplayFluxes 
+    / Vector
+    / ""
+    
+ListExpr
+	= "list" values:(_ "(" _ Expression _ ")")* {
+    	var p = parserContext.createClass('list');
+        for(var i in values){
+        	p.add(values[i][3]);
+        }
+        return p;
+    }
+
+ClassExpr
+	= "make" _ name:Id _ params:(_ "(" _ Id _ Expression _ ")" _)* {
+		var c = parserContext.createClass(name);
+        for(var i in params){
+        	c[params[i][3]] = params[i][5];
+        }
+    	return c;
+    }
+
+ResetExpr
+	= "reset-meep" {
+    	parserContext.reset();
+    }
+
+SetExpr
+	= "set!" _ name:Id _ value:Expression	{
+    	parserContext.simulation.params[name] = value;
+    }
+    
+DefineExpr
+	= ("define-param" / "define") _ name:Id _ value:Expression {
+    	parserContext.memory[name] = value;
+    }
+    
+AddFluxExpr
+	= "add-flux" _ fcen:(Number/Id) _ df:(Number/Id) _ nfreq:(Number/Id) _ regions:( "(" _ ClassExpr _ ")" )+ {
+		var flux = parserContext.createClass('add-flux');
+		flux.fcen = fcen;
+		flux.df = df;
+		flux.nfreq = nfreq;
+		for(var i in regions){
+			flux.addRegion(regions[i][2]);
+		}
+		return flux;
+	}
+
+DisplayFluxes
+	= "display-fluxes" _ flux:Expression {
+		parserContext.simulation["display-fluxes"] = flux;
+	}
+
+RunUntil
+	= "run-until" _ time:Number _ stepFuncs:(_ "(" _ [a-zA-Z0-9-_ ]+ _ ")" _)* {
+    	var p = parserContext.createClass("run-until");
+    	p.time = time;
+        for(var i in stepFuncs){
+        	p.addStepFunction(stepFuncs[i][3].join(''));
+        }
+		parserContext.simulation.runUntil = p;
+    }
+
+BOOL
+	= "true"	{return true }
+    / "false"	{return false }
+
+Number
+	= Float
+    / Integer
+    / NegativeNumber
+    / NoSize
+    
+NoSize
+	= "no-size" {
+		return parserContext.noSize;
+	}
+
+NegativeNumber
+	= "-" number:Number					{return -1*number}
+
+Integer
+	= [0-9]+						{ return parseInt(text(), 10); }
+
+Vector
+	= x:(Number/Id) _ y:(Number/Id)? _ z:(Number/Id)?	{
+		if(y==null && z==null) return x;
+    	else {
+    		var v = parserContext.createClass('vector3');
+    		v.x = x; v.y = y; v.z = z;
+    		return v;
+    	}
+   }
+
+Float
+	= [0-9]+'.'[0-9]+				{return parseFloat(text())}
+    / "infinity"					{return Infinity}
+
+Id
+	= [a-zA-Z][a-zA-Z-]*			{
+		var name = text();
+		var value = parserContext.memory.get(name);
+		if(value==null) return name;
+		else return value;
+    }
+
+_ "whitespace"
+	= [ \t\n\r]*

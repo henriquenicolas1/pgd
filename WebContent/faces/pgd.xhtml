@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<h:head>
+	<h:outputStylesheet library="css" name="layout.css" />
+	<h:outputStylesheet library="css" name="pgd.css" />
+	<h:outputStylesheet library="css" name="model.css" />
+	<title>Cristals</title>
+</h:head>
+<h:body style="overflow:hidden">
+	<pe:layout fullPage="true" widgetVar="layoutWidget">
+		<pe:blockUI widgetVar="pageBlocker">
+			<h:panelGrid columns="2">
+				<h:graphicImage library="images" name="ajax-loader1.gif"
+					style="margin-right: 12px; vertical-align: middle;" />
+				<h:outputText value="#{messages['simulation.wait']}"
+					style="white-space: nowrap;" />
+			</h:panelGrid>
+		</pe:blockUI>
+		<pe:layoutPane id="headerLayoutPane" position="north" closable="false"
+			resizable="false">
+			<ui:insert name="header">
+				PGD
+			</ui:insert>
+		</pe:layoutPane>
+		<pe:layoutPane position="center" id="layoutCenter">
+			<f:facet name="header">
+				<p:outputLabel value="#{messages['ctl.geometry.lattice']}" />
+				<span id="geometry-lattice-name" />
+			</f:facet>
+			<h:form prependId="false">
+				<p:toolbar>
+					<f:facet name="left">
+						<p:commandButton type="button" value="#{messages['simulation.new']}" icon="ui-icon-document" onclick="PF('newDialog').show()" />
+						<ui:include src="newDialog.xhtml"/>
+						<ui:include src="simulationDialog.xhtml"/>
+						<p:fileUpload id="file" widgetVar="file" mode="simple"
+							skinSimple="true" allowTypes="/(\.|\/)ctl$/"
+							dragDropSupport="true" label="#{messages['ctl.open']}" />
+
+						<span class="ui-separator"> <span
+							class="ui-icon ui-icon-grip-dotted-vertical" />
+						</span>
+
+						
+						<p:commandButton type="button" title="#{messages['simulation.delete']}" icon="ui-icon-trash" onclick="deleteSelected()" />
+           				<p:selectOneButton widgetVar="cursor-buttons" value="cursor" styleClass="cursor-buttons" onchange="cursorButtonChange()" style="margin-left:1em"> 
+           					<f:selectItem itemLabel="" itemValue="cursor" />
+            				<f:selectItem itemLabel="" itemValue="cylinder" />
+            				<f:selectItem itemLabel="" itemValue="source" />
+            				<f:selectItem itemLabel="" itemValue="flux-region" />
+        				</p:selectOneButton>
+					</f:facet>
+
+					<f:facet name="right">
+						<a href="javascript:downloadCtl()">
+							<p:commandButton widgetVar="download-button" type="button" value="Download" icon="ui-icon-disk" disabled="true"/>
+						</a>
+						<p:commandButton id="simulate-button" type="button"
+							disabled="true" value="#{messages['simulation.simulate']}"
+							onclick="openSimulationDialog()"
+							widgetVar="simulate-button" />
+						
+					</f:facet>
+
+				</p:toolbar>
+			</h:form>
+			<h:form id="editorForm" prependId="false">
+				<p:remoteCommand name="simulate"
+					actionListener="#{cristalsBean.simulate}" update="simulation"
+					onstart="PF('pageBlocker').block()"
+					oncomplete="PF('pageBlocker').unblock();$('#simulation').width($('.lattice').width());$('#simulation').height($('.lattice').height());" />
+				<p:remoteCommand name="clear"
+					actionListener="#{cristalsBean.clear}" update="simulation"
+					onstart="PF('pageBlocker').block()"
+					oncomplete="PF('pageBlocker').unblock()" />
+				<p:outputPanel id="simulation">
+					<ui:repeat var="file" value="#{cristalsBean.availableFiles}"
+						varStatus="st">
+						<p:graphicImage alt="" style="width:100%;height:100%" value="#{resource['HDF:'.concat(st.index)]}" cache="false"/>
+					</ui:repeat>
+				</p:outputPanel>
+			</h:form>
+		</pe:layoutPane>
+		<pe:layoutPane id="rightLayoutPane" position="east" closable="true" initClosed="true"
+			resizable="true" size="300">
+			<pe:layoutPane position="center">
+				<p:outputPanel id="cylinder-pane" style="display:none">
+					<p:inputText type="hidden" id="cylinder-id" widgetVar="cylinder-id"
+						style="width:100%" />
+					<f:facet name="header">
+						<h:outputText styleClass="ui-outputlabel ui-widget"
+							value="#{messages['cylinder.properties']}" />
+					</f:facet>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="radius"
+							value="#{messages['cylinder.properties.radius']}:" />
+						<p:inputText id="radius" widgetVar="radius" style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="coordinate-x"
+							value="#{messages['cylinder.properties.x']}:" />
+						<p:inputText id="coordinate-x" widgetVar="coordinate-x"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="coordinate-y"
+							value="#{messages['cylinder.properties.y']}:" />
+						<p:inputText id="coordinate-y" widgetVar="coordinate-y"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="material"
+							value="#{messages['cylinder.properties.material']}:" />
+						<p:inputText id="material" widgetVar="material" style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="height"
+							value="#{messages['cylinder.properties.height']}:" />
+						<p:inputText id="height" widgetVar="height" style="width:100%" />
+					</p:panelGrid>
+				</p:outputPanel>
+				<p:outputPanel id="block-pane" style="display:none">
+					<p:inputText type="hidden" id="block-id" widgetVar="block-id"
+						style="width:100%" />
+					<f:facet name="header">
+						<h:outputText styleClass="ui-outputlabel ui-widget"
+							value="#{messages['block.properties']}" />
+					</f:facet>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="block-size-x"
+							value="#{messages['block.properties.sizex']}:" />
+						<p:inputText id="block-size-x" widgetVar="block-size-x" style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="block-size-y"
+							value="#{messages['block.properties.sizey']}:" />
+						<p:inputText id="block-size-y" widgetVar="block-size-y" style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="block-center-x"
+							value="#{messages['block.properties.centerx']}:" />
+						<p:inputText id="block-center-x" widgetVar="block-center-x"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="block-center-y"
+							value="#{messages['block.properties.centery']}:" />
+						<p:inputText id="block-center-y" widgetVar="block-center-y"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="block-material"
+							value="#{messages['block.properties.material']}:" />
+						<p:inputText id="block-material" widgetVar="block-material"
+							style="width:100%" />
+					</p:panelGrid>
+				</p:outputPanel>
+				<p:outputPanel id="source-pane" style="display:none">
+					<p:inputText type="hidden" id="source-id" widgetVar="source-id"
+						style="width:100%" />
+					<f:facet name="header">
+						<h:outputText styleClass="ui-outputlabel ui-widget"
+							value="#{messages['source.properties']}" />
+					</f:facet>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="source-center-x"
+							value="#{messages['source.properties.centerx']}:" />
+						<p:inputText id="source-center-x" widgetVar="source-center-x"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="source-center-y"
+							value="#{messages['source.properties.centery']}:" />
+						<p:inputText id="source-center-y" widgetVar="source-center-y"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="source-src"
+							value="#{messages['source.properties.source']}:" />
+						<p:inputText id="source-src" widgetVar="source-src"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="source-component"
+							value="#{messages['source.properties.component']}:" />
+						<p:inputText id="source-component" widgetVar="source-component"
+							style="width:100%" />
+					</p:panelGrid>
+				</p:outputPanel>
+				<p:outputPanel id="fluxRegion-pane" style="display:none">
+					<p:inputText type="hidden" id="fluxRegion-id" widgetVar="fluxRegion-id"
+						style="width:100%" />
+					<f:facet name="header">
+						<h:outputText styleClass="ui-outputlabel ui-widget"
+							value="#{messages['fluxRegion.properties']}" />
+					</f:facet>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-center-x"
+							value="#{messages['fluxRegion.properties.centerx']}:" />
+						<p:inputText id="fluxRegion-center-x" widgetVar="fluxRegion-center-x"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-center-y"
+							value="#{messages['fluxRegion.properties.centery']}:" />
+						<p:inputText id="fluxRegion-center-y" widgetVar="fluxRegion-center-y"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-size-x"
+							value="#{messages['fluxRegion.properties.sizex']}:" />
+						<p:inputText id="fluxRegion-size-x" widgetVar="fluxRegion-size-x"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-size-y"
+							value="#{messages['fluxRegion.properties.sizey']}:" />
+						<p:inputText id="fluxRegion-size-y" widgetVar="fluxRegion-size-y"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-direction"
+							value="#{messages['fluxRegion.properties.direction']}:" />
+						<p:inputText id="fluxRegion-direction" widgetVar="fluxRegion-direction"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-addflux-df"
+							value="#{messages['fluxRegion.properties.addflux-df']}:" />
+						<p:inputText id="fluxRegion-addflux-df" widgetVar="fluxRegion-addflux-df"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-addflux-fcen"
+							value="#{messages['fluxRegion.properties.addflux-fcen']}:" />
+						<p:inputText id="fluxRegion-addflux-fcen" widgetVar="fluxRegion-addflux-fcen"
+							style="width:100%" />
+					</p:panelGrid>
+					<p:panelGrid columns="2" styleClass="without-border">
+						<p:outputLabel for="fluxRegion-addflux-nfreq"
+							value="#{messages['fluxRegion.properties.addflux-nfreq']}:" />
+						<p:inputText id="fluxRegion-addflux-nfreq" widgetVar="fluxRegion-addflux-nfreq"
+							style="width:100%" />
+					</p:panelGrid>
+				</p:outputPanel>
+			</pe:layoutPane>
+			<pe:layoutPane position="south" closable="true" resizable="false">
+				<p:outputPanel id="cylinder-update-pane" style="display:none">
+					<p:commandButton type="button"
+						value="#{messages['properties.update']}"
+						onclick="updateCylinders()" />
+				</p:outputPanel>
+				<p:outputPanel id="block-update-pane" style="display:none">
+					<p:commandButton type="button"
+						value="#{messages['properties.update']}"
+						onclick="updateBlock()" />
+				</p:outputPanel>
+				<p:outputPanel id="source-update-pane" style="display:none">
+					<p:commandButton type="button"
+						value="#{messages['properties.update']}"
+						onclick="updateSource()" />
+				</p:outputPanel>
+				<p:outputPanel id="fluxRegion-update-pane" style="display:none">
+					<p:commandButton type="button"
+						value="#{messages['properties.update']}"
+						onclick="updateFluxRegion()" />
+				</p:outputPanel>
+			</pe:layoutPane>
+		</pe:layoutPane>
+		
+		
+	</pe:layout>
+	<ui:include src="pgd-include.xhtml"/>
+</h:body>
+</html>

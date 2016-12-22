@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+<ui:composition>
+	<p:dialog widgetVar="simulationDialog"
+		header="#{messages['simulation.title']}" modal="true"
+		appendTo="@(body) ">
+		<h:outputScript library="js" name="simulationDialog.js" />
+		<h:panelGrid columns="2" cellpadding="2">
+
+			<p:outputLabel for="step" value="#{messages['newDialog.steps']}" />
+			<p:spinner widgetVar="step" id="step" min="1" value="50" />
+			<p:outputLabel for="each" value="#{messages['newDialog.each']}" />
+			<p:spinner widgetVar="each" id="each" min="1" value="5" />
+
+		</h:panelGrid>
+		<p:commandButton type="button" value="OK" id="ok"
+			styleClass="ui-priority-primary" icon="icon-ok"
+			onclick="startSimulation()" />
+	</p:dialog>
+
+</ui:composition>
+</html>
